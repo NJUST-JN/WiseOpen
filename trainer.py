@@ -36,10 +36,10 @@ def linear_warmup_hyper(afrom, ato, total, epoch):
 
 def warmup_alpha(args, epoch):
     epoch = epoch - args.sup_warm
-    if args.num_labeled == 50:
-        args.alpha = linear_warmup_hyper(max(0, args.alpha_from), max(0, args.alpha_to), args.ova_warm, epoch)
-    else:
-        args.alpha = cosin_warmup_hyper(max(0, args.alpha_from), max(0, args.alpha_to), args.ova_warm, epoch) 
+#     if args.num_labeled == 50:
+#         args.alpha = linear_warmup_hyper(max(0, args.alpha_from), max(0, args.alpha_to), args.ova_warm, epoch)
+#     else:
+    args.alpha = cosin_warmup_hyper(max(0, args.alpha_from), max(0, args.alpha_to), args.ova_warm, epoch) 
     args.writer.add_scalar('hyper/2.alpha', args.alpha, epoch)
             
             
