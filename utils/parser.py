@@ -93,7 +93,7 @@ def set_parser():
                         help="min threshold for pseudo ID")
     parser.add_argument("--C_id",default=1.0001,type=float,
                         help="C for pseudo ID (in paper is mu)")  
-    parser.add_argument("--gama_id",default=1.05,type=float,
+    parser.add_argument("--gama_id",default=1.01,type=float,
                         help="gama for pseudo ID (in paper is eta)")
     parser.add_argument("--th_id",default=0.5,type=float,
                         help="threshold for pseudo ID")
@@ -106,7 +106,7 @@ def set_parser():
                         help="min threshold for pseudo OOD")
     parser.add_argument("--C_ood",default=1.0001,type=float,
                         help="C for pseudo OOD (in paper is mu)")  
-    parser.add_argument("--gama_ood",default=1.05,type=float,
+    parser.add_argument("--gama_ood",default=1.01,type=float,
                         help="gama for pseudo OOD (in paper is eta)")
     parser.add_argument("--th_ood",default=0.5,type=float,
                         help="threshold for pseudo OOD")
