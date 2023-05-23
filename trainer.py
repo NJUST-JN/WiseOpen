@@ -26,23 +26,11 @@ def cosin_warmup_hyper(afrom, ato, total, epoch):
         return ato
 
 
-def linear_warmup_hyper(afrom, ato, total, epoch):
-    if epoch >= 0 and epoch <= total:
-        return (ato - afrom)/total * epoch + afrom
-    elif epoch < 0:
-        return afrom
-    else:
-        return ato
-
 def warmup_alpha(args, epoch):
     epoch = epoch - args.sup_warm
-    # if args.num_labeled == 50:
-    #     args.alpha = linear_warmup_hyper(max(0, args.alpha_from), max(0, args.alpha_to), args.ova_warm, epoch)
-    # else:
     args.alpha = cosin_warmup_hyper(max(0, args.alpha_from), max(0, args.alpha_to), args.ova_warm, epoch) 
     args.writer.add_scalar('hyper/2.alpha', args.alpha, epoch)
-            
-            
+                    
 def warmup_id_ood_th(args, epoch):
     epoch = epoch - args.sup_warm
     if epoch >= 0:
@@ -58,7 +46,6 @@ def warmup_threshold(args, epoch):
         t = epoch / args.uc2
         args.threshold = min(args.threshold_hat**(args.C_threshold * args.gama_threshold ** (-t)), args.max_threshold)
     args.writer.add_scalar('hyper/5.threshold', args.threshold, epoch)
-
 
 def train(args, labeled_trainloader, unlabeled_dataset, test_loader, val_loader,
           ood_loaders, model, optimizer, ema_model, scheduler, best_acc, best_acc_val, best_roc ):
@@ -107,7 +94,6 @@ def train(args, labeled_trainloader, unlabeled_dataset, test_loader, val_loader,
         std = Tiny_std
         func_trans = TransformFixMatch_Tiny_Weak
 
-
     df_subst.transform = func_trans(mean=mean, std=std)
     labeled_dataset = copy.deepcopy(labeled_trainloader.dataset)
     labeled_dataset.transform = func_trans(mean=mean, std=std)
@@ -119,7 +105,6 @@ def train(args, labeled_trainloader, unlabeled_dataset, test_loader, val_loader,
         num_workers=args.num_workers,
         drop_last=True)
     train_sampler = RandomSampler if args.local_rank == -1 else DistributedSampler
-
 
     for epoch in range(args.start_epoch, args.epochs):
         batch_time = AverageMeter()
@@ -147,8 +132,6 @@ def train(args, labeled_trainloader, unlabeled_dataset, test_loader, val_loader,
         cf_subset.set_index(id_selected)
         df_subst.set_index(all_selected)
 
-        # print(len(df_subst))
-        # print(len(cf_subset))
         
         if epoch >= args.start_fix and len(cf_subset) >= args.batch_size * args.mu * args.least_set:
             cf_trainloader = DataLoader(cf_subset,
@@ -173,7 +156,7 @@ def train(args, labeled_trainloader, unlabeled_dataset, test_loader, val_loader,
         end = time.time()
 
         for batch_idx in range(args.eval_step):
-            ## Data loading
+
             try:
                 (_, inputs_x_s, inputs_x), targets_x = labeled_iter.__next__()
             except:
@@ -207,13 +190,12 @@ def train(args, labeled_trainloader, unlabeled_dataset, test_loader, val_loader,
             inputs = inputs.to(args.device)
             targets_x = targets_x.to(args.device)
 
-            ## Feed data
+
             logits, logits_open = model(inputs)
 
             if df_trainloader_all is not None:
                 logits_open_u1, logits_open_u2 = logits_open[2*b_size:].chunk(2)
 
-            ## Loss for labeled samples
             l_logits_open = logits_open[:2*b_size]
             l_logits_open = l_logits_open.view(l_logits_open.size(0), 2, -1)
             l_logits_open = F.softmax(l_logits_open, 1)
@@ -225,7 +207,6 @@ def train(args, labeled_trainloader, unlabeled_dataset, test_loader, val_loader,
             Lx = F.cross_entropy(logits[:2*b_size], targets_x.repeat(2), reduction='mean')
             Lo = ova_loss(logits_open[:2*b_size], targets_x.repeat(2), alpha=args.alpha)
 
-            ## Open-set entropy minimization  & Soft consistenty regularization
             if df_trainloader_all is not None:
                 L_oem1 = ova_ent(logits_open_u1)
                 L_oem2 = ova_ent(logits_open_u2)               
@@ -293,11 +274,9 @@ def train(args, labeled_trainloader, unlabeled_dataset, test_loader, val_loader,
 
         if epoch == args.start_fix - 1:
             args.threshold_hat = max(min(np.exp(-losses_x.avg), args.max_threshold), args.min_threshold)
-            # print("threshold_hat:", args.threshold_hat)
         if epoch == args.sup_warm - 1:
             args.S_hat_id = max(min(mean_lableled_score.avg, args.S_max_id), args.S_min_id)
             args.S_hat_ood = max(min(mean_lableled_score.avg, args.S_max_ood), args.S_min_ood)
-            # print("S_hat:", args.S_hat_id)
 
         if not args.no_progress:
             p_bar.close()

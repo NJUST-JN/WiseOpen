@@ -21,7 +21,6 @@ __all__ = ['get_mean_and_std', 'accuracy', 'AverageMeter',
            'get_subset']
 
 
-
 def get_mean_and_std(dataset):
     '''Compute the mean and std value of dataset.'''
     dataloader = torch.utils.data.DataLoader(
@@ -90,9 +89,7 @@ def compute_roc(unk_all, label_all, num_known):
 
 def compute_roc_aupr(unk_all, label_all, num_known):
     '''
-    roc: 以ood数据为positive
-    aupr_out：以ood为positive
-    aupr_in：以in为positive
+    return roc, aupr_out, aupr_in
     '''
     Y_test = np.zeros(unk_all.shape[0])
     unk_pos = np.where(label_all >= num_known)[0]
@@ -104,9 +101,7 @@ def compute_roc_aupr(unk_all, label_all, num_known):
 
 def misc_id_ood(score_id, score_ood):
     '''
-    roc: 以ood数据为positive
-    aupr_out：以ood为positive
-    aupr_in：以id为positive
+    return roc, aupr_out, aupr_in
     '''
     id_all = np.r_[score_id, score_ood]
     Y_test = np.zeros(score_id.shape[0]+score_ood.shape[0])
@@ -131,17 +126,6 @@ def ova_loss(logits_open, label, alpha=0.5):
     return Lo*2.0
 
 
-def get_scores(args, logits_open, logits):
-    logits_open = logits_open.view(logits_open.size(0), 2, -1)
-    logits_open = F.softmax(logits_open, 1)
-    logits = F.softmax(logits, 1)
-    tmp_range = torch.arange(0, logits_open.size(0)).long().to(args.device)
-    pred_close = logits.data.max(1)[1]
-    max_id_score = logits_open[tmp_range, 1, pred_close]
-    # print(max_id_score.size())
-    # max_id_score = logits_open[tmp_range, 1, :].max(1)[0]
-    min_ood_score = logits_open[tmp_range, 0, :].min(1)[0]
-    return max_id_score, min_ood_score
 
 def get_pseudo_ova_mask(args, logits_open, logits):
     logits_open = logits_open.view(logits_open.size(0), 2, -1)
@@ -306,9 +290,7 @@ def test(args, test_loader, model, epoch, val=False, feature=False):
                 ))
         if not args.no_progress:
             test_loader.close()
-    ## ROC calculation
-    #import pdb
-    #pdb.set_trace()
+
     unk_all = unk_all.data.cpu().numpy()
     known_all = known_all.data.cpu().numpy()
     label_all = label_all.data.cpu().numpy()
@@ -345,7 +327,7 @@ def test_ood(args, test_id, test_loader, model):
         test_loader = tqdm(test_loader,
                            disable=args.local_rank not in [-1, 0], ncols=150)
     with torch.no_grad():
-        for batch_idx, (inputs, targets) in enumerate(test_loader):
+        for batch_idx, (inputs, _) in enumerate(test_loader):
             data_time.update(time.time() - end)
             model.eval()
             inputs = inputs.to(args.device)
@@ -362,7 +344,7 @@ def test_ood(args, test_id, test_loader, model):
                 unk_all = torch.cat([unk_all, unk_score], 0)
         if not args.no_progress:
             test_loader.close()
-    ## ROC calculation
+
     unk_all = unk_all.data.cpu().numpy()
     roc, aupr_out, aupr_in = misc_id_ood(test_id, unk_all) 
 

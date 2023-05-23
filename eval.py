@@ -27,8 +27,7 @@ def eval_model(args, labeled_trainloader, unlabeled_dataset, test_loader, val_lo
         test_loss, close_valid, test_overall, \
         test_unk, test_roc, test_roc_softm, test_id, test_ood_score, \
         test_aupr_in, test_aupr_out \
-            = test(args, test_loader, test_model, epoch, each_class=True)
-        
+            = test(args, test_loader, test_model, epoch, each_class=True)    
 
         overall_valid = test_overall
         unk_valid = test_unk

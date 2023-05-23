@@ -4,8 +4,7 @@ __all__ = ['set_parser']
 
 def set_parser():
     parser = argparse.ArgumentParser(description='PyTorch WiseOpen Training')
-    ## Computational Configurations
-         
+      
     parser.add_argument('--gpu_id', default='2', type=int,
                         help='id(s) for CUDA_VISIBLE_DEVICES')
     parser.add_argument('--num_workers', type=int, default=4,
@@ -23,13 +22,10 @@ def set_parser():
                     help="don't use progress bar")
     parser.add_argument('--eval_only', type=int, default=0,
                         help='1 if evaluation mode ')
-    parser.add_argument('--vis_only', action="store_true",
-                        help='1 if visualization mode ')
-    parser.add_argument("--kmeans", action="store_true",
-                        help="use to calculate nmi")
+    
     
     parser.add_argument('--num_classes', type=int, default=6,
-                        help='for cifar10')
+                        help='number of seen classes')
 
     parser.add_argument('--out', default='result',
                         help='directory to output the result')
@@ -40,27 +36,24 @@ def set_parser():
     parser.add_argument('--dataset', default='cifar10', type=str,
                         choices=['cifar10', 'cifar100', 'tiny'],
                         help='dataset name')
-    ## Hyper-parameters
+
     parser.add_argument('--opt', default='sgd', type=str,
                         choices=['sgd', 'adam'],
                         help='optimize name')
     parser.add_argument('--num_labeled', type=int, default=400,
-                        choices=[25, 50, 100, 400],
+                        choices=[50, 100, 400],
                         help='number of labeled data per each class')
     parser.add_argument('--num_val', type=int, default=50,
                         help='number of validation data per each class')
     parser.add_argument("--expand_labels", action="store_true",
                         help="expand labels to fit eval steps")
-    parser.add_argument('--arch', default='wideresnet', type=str,
-                        choices=['wideresnet', 'resnext',
-                                 'resnet_imagenet'],
-                        help='dataset name')
-    ## HP unique to OpenMatch (Some are changed from FixMatch)
+    parser.add_argument('--arch', default='wideresnet', type=str)
+
+
     parser.add_argument('--lambda_oem', default=0.1, type=float,
                     help='coefficient of OEM loss')
     parser.add_argument('--lambda_socr', default=0.5, type=float,
-                    help='coefficient of SOCR loss, 0.5 for CIFAR10, ImageNet, '
-                         '1.0 for CIFAR100')
+                    help='coefficient of SOCR loss, 0.5 for CIFAR10, 1.0 for CIFAR100 and tiny')
     parser.add_argument('--start_fix', default=10, type=int,
                         help='epoch to start fixmatch training')
     parser.add_argument('--mu', default=2, type=int,
@@ -70,7 +63,6 @@ def set_parser():
     parser.add_argument('--epochs', default=512, type=int,
                         help='number of epochs to run')
 
-    ##
     parser.add_argument('--eval_step', default=1024, type=int,
                         help='number of eval steps to run')
 
@@ -93,7 +85,6 @@ def set_parser():
     parser.add_argument('--T', default=1, type=float,
                         help='pseudo label temperature')
     
-    ## WiseOpen
     parser.add_argument("--S_hat_id",default=0.5,type=float,
                         help="initial threshold for pseudo ID")
     parser.add_argument("--S_max_id",default=0.9,type=float,
@@ -101,9 +92,9 @@ def set_parser():
     parser.add_argument("--S_min_id",default=0.5,type=float,
                         help="min threshold for pseudo ID")
     parser.add_argument("--C_id",default=1.0001,type=float,
-                        help="C for pseudo ID")  
+                        help="C for pseudo ID (in paper is mu)")  
     parser.add_argument("--gama_id",default=1.05,type=float,
-                        help="gama for pseudo ID")
+                        help="gama for pseudo ID (in paper is eta)")
     parser.add_argument("--th_id",default=0.5,type=float,
                         help="threshold for pseudo ID")
     
@@ -114,9 +105,9 @@ def set_parser():
     parser.add_argument("--S_min_ood",default=0.5,type=float,
                         help="min threshold for pseudo OOD")
     parser.add_argument("--C_ood",default=1.0001,type=float,
-                        help="C for pseudo OOD")  
+                        help="C for pseudo OOD (in paper is mu)")  
     parser.add_argument("--gama_ood",default=1.05,type=float,
-                        help="gama for pseudo OOD")
+                        help="gama for pseudo OOD (in paper is eta)")
     parser.add_argument("--th_ood",default=0.5,type=float,
                         help="threshold for pseudo OOD")
     
@@ -129,29 +120,28 @@ def set_parser():
     parser.add_argument("--min_threshold",default=0.0,type=float,
                         help="min threshold for pseudo label")
     parser.add_argument("--C_threshold",default=1.0001,type=float,
-                        help="C for pseudo OOD")  
+                        help="C for pseudo OOD (in paper is mu)")  
     parser.add_argument("--gama_threshold",default=1.27,type=float,
-                        help="gama for pseudo OOD")
+                        help="gama for pseudo OOD (in paper is eta)")
     
     parser.add_argument("--uc1",default=9,type=float,
                         help="updata cycle for id and ood th")
     parser.add_argument("--uc2",default=9,type=float,
                         help="updata cycle for threshold")
     
-    parser.add_argument('--sup_warm', default=5, type=int,
-                        help='epoch to warm model by supervised loss')
+    parser.add_argument('--sup_warm', default=3, type=int,
+                        help='epoch to warm model with supervised loss')
     parser.add_argument('--ova_warm', default=512, type=int,
-                        help='epoch to use cosine annealing in alpha')
+                        help='epoch to increase alpha in a consine function')
     parser.add_argument("--alpha_to",default=0.5,type=float,
-                        help="used in ova focal loss")
-    parser.add_argument("--alpha_from",default=0.1,type=float,
-                        help="used in ova focal loss")
+                        help="initial alpha")
+    parser.add_argument("--alpha_from",default=0.01,type=float,
+                        help="final alpha")
     parser.add_argument("--alpha",default=0.5,type=float,
-                        help="used in ova focal loss")
+                        help="balance coefficient alpha (in paper is beta)")
     
     parser.add_argument("--ood_test", action="store_true",
-                        help="whether test far ood")
-
+                        help="whether test unseen ood")
     parser.add_argument('--least_set', default=1, type=int,
                         help='the smallest unlabled set to tarin least_set*mu*batch')
 

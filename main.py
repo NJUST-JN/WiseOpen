@@ -61,7 +61,6 @@ def main():
         logger.info("==> Resuming from checkpoint..")
         assert os.path.isfile(
             args.resume), "Error: no checkpoint directory found!"
-        # args.out = os.path.dirname(args.resume)
         checkpoint = torch.load(args.resume)
         best_acc = checkpoint['best_acc']
         best_acc_val = checkpoint['best_acc_val']

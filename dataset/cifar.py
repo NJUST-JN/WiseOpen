@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 __all__ = ['TransformOpenMatch', 'TransformFixMatch', 'cifar10_mean',
            'cifar10_std', 'cifar100_mean', 'cifar100_std', 'Tiny_mean', 'Tiny_std',
            'TransformFixMatch_Tiny', 'TransformFixMatch_Tiny_Weak']
-### Enter Path of the data directory.
+
 DATA_PATH = './data'
 
 cifar10_mean = (0.4914, 0.4822, 0.4465)
@@ -51,7 +51,6 @@ def get_cifar(args, norm=True):
     train_labeled_idxs, train_unlabeled_idxs, val_idxs = \
         x_u_split(args, base_dataset.targets)
 
-    ## This function will be overwritten in trainer.py
     norm_func = TransformFixMatch(mean=mean, std=std, norm=norm)
     if norm:
         norm_func_test = transforms.Compose([
@@ -87,7 +86,7 @@ def get_cifar(args, norm=True):
 
 
 def get_tiny_imagenet(args, train_labeled_idxs=None, train_unlabeled_idxs=None, val_idxs = None, norm=True):
-    root = DATA_PATH
+    root = args.root
     name = args.dataset
     train_data_folder = os.path.join(root, 'tiny_imagenet/tin_train.txt')
     test_data_folder = os.path.join(root, 'tiny_imagenet/tin_val.txt')
@@ -97,7 +96,7 @@ def get_tiny_imagenet(args, train_labeled_idxs=None, train_unlabeled_idxs=None, 
     assert num_class > args.num_classes
     norm_func = TransformFixMatch_Tiny(mean, std, size_image=64)                                   
     base_dataset = ImageFolder_fix(train_data_folder, transform=norm_func)
-    print('-'*40 + ' Get Ids ' + '-'*40)
+    print('-'*40 + ' Get idxs ' + '-'*40)
 
     train_labeled_idxs, train_unlabeled_idxs, val_idxs = \
         x_u_split(args, base_dataset.labels)
@@ -139,13 +138,13 @@ def get_tiny_imagenet(args, train_labeled_idxs=None, train_unlabeled_idxs=None, 
     return train_labeled_dataset, train_unlabeled_dataset, test_dataset, val_dataset
 
 def x_u_split(args, labels):
-    label_per_class = args.num_labeled #// args.num_classes
-    val_per_class = args.num_val #// args.num_classes
+    label_per_class = args.num_labeled 
+    val_per_class = args.num_val 
     labels = np.array(labels)
     labeled_idx = []
     val_idx = []
     unlabeled_idx = []
-    # unlabeled data: all data (https://github.com/kekmodel/FixMatch-pytorch/issues/10)
+    
     for i in range(args.num_classes):
         idx = np.where(labels == i)[0]
         unlabeled_idx.extend(idx)   
@@ -161,7 +160,6 @@ def x_u_split(args, labels):
             args.batch_size * args.eval_step / args.num_labeled)
         labeled_idx = np.hstack([labeled_idx for _ in range(num_expand_x)])
     np.random.shuffle(labeled_idx)
-
 
     unlabeled_idx = np.array(range(len(labels)))
     unlabeled_idx = list(set(unlabeled_idx) - set(labeled_idx))
@@ -375,9 +373,7 @@ class CIFAR100SSL(datasets.CIFAR100):
         return len(self.data_index)
 
 def get_transform(mean, std, image_size=None):
-    # Note: data augmentation is implemented in the layers
-    # Hence, we only define the identity transformation here
-    if image_size:  # use pre-specified image size
+    if image_size: 
         train_transform = transforms.Compose([
             transforms.Resize((image_size[0], image_size[1])),
             transforms.RandomHorizontalFlip(),
@@ -389,7 +385,7 @@ def get_transform(mean, std, image_size=None):
             transforms.ToTensor(),
             transforms.Normalize(mean=mean, std=std),
         ])
-    else:  # use default image size
+    else:  
         train_transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(mean=mean, std=std),
