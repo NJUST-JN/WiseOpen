@@ -18,57 +18,35 @@ __all__ = ['create_model', 'set_model_config',
 
 
 def create_model(args):
-    if 'wideresnet' in args.arch:
-        import models.wideresnet as models
-        print('cifar num_classes: ',args.num_classes)
-        model = models.build_wideresnet(depth=args.model_depth,
-                                        widen_factor=args.model_width,
-                                        dropout=0,
-                                        num_classes=args.num_classes,
-                                        open=True)
-    elif args.arch == 'resnext':
-        import models.resnext as models
-        model = models.build_resnext(cardinality=args.model_cardinality,
-                                     depth=args.model_depth,
-                                     width=args.model_width,
-                                     num_classes=args.num_classes)
-    elif args.arch == 'resnet_imagenet':
-        import models.resnet_imagenet as models
-        print('imagenet num_classes: ',args.num_classes)
-        model = models.resnet18(num_classes=args.num_classes)
-
+    # if 'wideresnet' in args.arch:
+    import models.wideresnet as models
+    print('num_classes: ',args.num_classes)
+    model = models.build_wideresnet(depth=args.model_depth,
+                                    widen_factor=args.model_width,
+                                    dropout=0,
+                                    num_classes=args.num_classes,
+                                    open=True)
     return model
 
 
 
 def set_model_config(args):
     if args.dataset == 'cifar10':
-        if args.arch == 'wideresnet':
-            args.model_depth = 28
-            args.model_width = 2
-        elif args.arch == 'resnext':
-            args.model_cardinality = 4
-            args.model_depth = 28
-            args.model_width = 4
+        # if args.arch == 'wideresnet':
+        args.model_depth = 28
+        args.model_width = 2
+
 
     elif args.dataset == 'cifar100':
-        if args.arch == 'wideresnet':
-            args.model_depth = 28
-            args.model_width = 2
-        elif args.arch == 'wideresnet_10':
-            args.model_depth = 28
-            args.model_width = 8
-        elif args.arch == 'resnext':
-            args.model_cardinality = 8
-            args.model_depth = 29
-            args.model_width = 64
+        # if args.arch == 'wideresnet':
+        args.model_depth = 28
+        args.model_width = 2
 
     elif args.dataset == 'tiny':
-        if args.arch == 'wideresnet':
-            args.model_depth = 28
-            args.model_width = 2
-        else:
-            raise ValueError('invaild model arch in tiny imagenet setting')
+        # if args.arch == 'wideresnet':
+        args.model_depth = 28
+        args.model_width = 2
+
 
     args.image_size = (32, 32, 3)
     if args.dataset == 'cifar10':
