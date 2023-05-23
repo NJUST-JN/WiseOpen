@@ -143,6 +143,7 @@ def train(args, labeled_trainloader, unlabeled_dataset, test_loader, val_loader,
         warmup_alpha(args, epoch)
         id_selected, all_selected = get_subset(args, unlabeled_dataset, ema_model.ema)
         
+        cf_subset.init_index()
         df_subst.init_index()
         cf_subset.set_index(id_selected)
         df_subst.set_index(all_selected)
