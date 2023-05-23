@@ -52,7 +52,6 @@ def set_model_config(args):
             args.model_width = 4
 
     elif args.dataset == 'cifar100':
-        # args.num_classes = 55
         if args.arch == 'wideresnet':
             args.model_depth = 28
             args.model_width = 2
@@ -79,8 +78,7 @@ def set_model_config(args):
         args.ood_data = ['cifar10', "svhn", 'lsun', 'imagenet']
 
     elif 'tiny' in args.dataset:
-        args.ood_data = ['lsun', 'dtd', 'cub', 'flowers102',
-                         'caltech_256', 'stanford_dogs']
+        args.ood_data = ['lsun', 'cub', 'caltech_256', 'stanford_dogs']
         args.image_size = (64, 64, 3)
 
 def set_dataset(args):

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def main():
     args = set_parser()
-    best_acc, best_acc_val, best_all_acc, best_acc_roc, best_roc = 0, 0, 0, 0, 0
+    best_acc, best_acc_val, best_roc = 0, 0, 0, 0, 0
     if args.local_rank == -1:
         device = torch.device('cuda', args.gpu_id)
         args.world_size = 1
@@ -97,7 +97,7 @@ def main():
         logger.info(f"  Total train batch size = {args.batch_size*args.world_size}")
         logger.info(f"  Total optimization steps = {args.total_steps}")
         train(args, labeled_trainloader, unlabeled_dataset, test_loader, val_loader,
-              ood_loaders, model, optimizer, ema_model, scheduler, best_acc, best_acc_val, best_all_acc, best_acc_roc, best_roc )
+              ood_loaders, model, optimizer, ema_model, scheduler, best_acc, best_acc_val, best_roc )
     else:
         logger.info("***** Running Evaluation *****")
         logger.info(f"  Task = {args.dataset}@{args.num_labeled}")

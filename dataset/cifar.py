@@ -25,7 +25,6 @@ Tiny_mean = (0.4802, 0.4481, 0.3975)
 Tiny_std = (0.2770, 0.2691, 0.2821)
 
 
-
 def get_cifar(args, norm=True):
     root = args.root
     name = args.dataset
@@ -441,25 +440,10 @@ def get_ood(dataset, id, image_size=None):
         test_dir = os.path.join(DATA_PATH, 'cub')
         test_set = datasets.ImageFolder(test_dir, transform=test_transform)
 
-    elif dataset == 'flowers102':
-        test_dir = os.path.join(DATA_PATH, 'flowers102')
-        test_set = datasets.ImageFolder(test_dir, transform=test_transform)
-
-    elif dataset == 'food_101':
-        test_dir = os.path.join(DATA_PATH, 'food-101', 'images')
-        test_set = datasets.ImageFolder(test_dir, transform=test_transform)
-
     elif dataset == 'caltech_256':
         test_dir = os.path.join(DATA_PATH, 'caltech-256')
         test_set = datasets.ImageFolder(test_dir, transform=test_transform)
 
-    elif dataset == 'dtd':
-        test_dir = os.path.join(DATA_PATH, 'dtd')
-        test_set = datasets.ImageFolder(test_dir, transform=test_transform)
-
-    elif dataset == 'pets':
-        test_dir = os.path.join(DATA_PATH, 'pets')
-        test_set = datasets.ImageFolder(test_dir, transform=test_transform)
 
     return test_set
 

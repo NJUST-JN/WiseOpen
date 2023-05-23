@@ -8,7 +8,7 @@ import torch.nn.functional as F
 import numpy as np
 
 import torch
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
+from torch.utils.data import DataLoader
 from sklearn.metrics import roc_auc_score, average_precision_score
 import math
 
@@ -223,7 +223,7 @@ def get_subset(args, dataset, model):
     return id_selected, all_selected
 
 
-def test(args, test_loader, model, epoch, val=False, feature=False, each_class=False):
+def test(args, test_loader, model, epoch, val=False, feature=False):
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
@@ -231,7 +231,6 @@ def test(args, test_loader, model, epoch, val=False, feature=False, each_class=F
     acc = AverageMeter()
     unk = AverageMeter()
     top5 = AverageMeter()
-    acc_list = [AverageMeter() for i in range(args.num_classes)]
     end = time.time()
 
     if not args.no_progress:
@@ -266,14 +265,6 @@ def test(args, test_loader, model, epoch, val=False, feature=False, each_class=F
                 prec1, prec5 = accuracy(known_pred, known_targets, topk=(1, min(5, int(outputs.size(1)))))
                 top1.update(prec1.item(), known_pred.shape[0])
                 top5.update(prec5.item(), known_pred.shape[0])
-            if each_class:
-                for i in range(args.num_classes):
-                    slice_i = known_targets == i
-                    pred_i = known_pred[slice_i]
-                    targets_i = known_targets[slice_i]
-                    if len(targets_i) > 0:
-                        prec1 = accuracy(pred_i, targets_i, topk=(1, ))[0]
-                        acc_list[i].update(prec1.item(), pred_i.size(0))
 
             ind_unk = unk_score > 0.5
             pred_close[ind_unk] = int(outputs.size(1))
@@ -315,9 +306,6 @@ def test(args, test_loader, model, epoch, val=False, feature=False, each_class=F
                 ))
         if not args.no_progress:
             test_loader.close()
-    if each_class:
-        for i in range(args.num_classes):
-            print(f'Class【{i}】: {acc_list[i].avg}')
     ## ROC calculation
     #import pdb
     #pdb.set_trace()
@@ -376,6 +364,6 @@ def test_ood(args, test_id, test_loader, model):
             test_loader.close()
     ## ROC calculation
     unk_all = unk_all.data.cpu().numpy()
-    roc, aupr_out, aupr_in = misc_id_ood(test_id, unk_all) #aupr_in, aupr_out反了 已经更正
+    roc, aupr_out, aupr_in = misc_id_ood(test_id, unk_all) 
 
     return roc, aupr_in, aupr_out

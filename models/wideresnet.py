@@ -172,7 +172,6 @@ class WideResNet_Open(nn.Module):
         out = F.adaptive_avg_pool2d(out, 1)
         out = out.view(-1, self.channels)
 
-
         if feat_only:
             return self.simclr_layer(out)
         out_open = self.fc_open(out)

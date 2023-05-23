@@ -36,9 +36,9 @@ def linear_warmup_hyper(afrom, ato, total, epoch):
 
 def warmup_alpha(args, epoch):
     epoch = epoch - args.sup_warm
-#     if args.num_labeled == 50:
-#         args.alpha = linear_warmup_hyper(max(0, args.alpha_from), max(0, args.alpha_to), args.ova_warm, epoch)
-#     else:
+    # if args.num_labeled == 50:
+    #     args.alpha = linear_warmup_hyper(max(0, args.alpha_from), max(0, args.alpha_to), args.ova_warm, epoch)
+    # else:
     args.alpha = cosin_warmup_hyper(max(0, args.alpha_from), max(0, args.alpha_to), args.ova_warm, epoch) 
     args.writer.add_scalar('hyper/2.alpha', args.alpha, epoch)
             
@@ -61,7 +61,7 @@ def warmup_threshold(args, epoch):
 
 
 def train(args, labeled_trainloader, unlabeled_dataset, test_loader, val_loader,
-          ood_loaders, model, optimizer, ema_model, scheduler, best_acc, best_acc_val, best_all_acc, best_acc_roc, best_roc ):
+          ood_loaders, model, optimizer, ema_model, scheduler, best_acc, best_acc_val, best_roc ):
     if args.amp:
         from apex import amp
 
@@ -72,8 +72,8 @@ def train(args, labeled_trainloader, unlabeled_dataset, test_loader, val_loader,
     aupr_out_valid = 0
     test_accs = []
 
-    logger.info("global best_acc: {:.4f} | best_acc_val: {:.4f} | best_all_acc: {:.4f} | best_acc_roc: {:.4f} | best_roc: {:.4f}".format(
-        best_acc, best_acc_val, best_all_acc, best_acc_roc, best_roc 
+    logger.info("global best_acc: {:.4f} | best_acc_val: {:.4f} | best_roc: {:.4f}".format(
+        best_acc, best_acc_val, best_roc 
     ))
 
     if args.world_size > 1:
@@ -143,7 +143,6 @@ def train(args, labeled_trainloader, unlabeled_dataset, test_loader, val_loader,
         warmup_alpha(args, epoch)
         id_selected, all_selected = get_subset(args, unlabeled_dataset, ema_model.ema)
         
-        cf_subset.init_index()
         df_subst.init_index()
         cf_subset.set_index(id_selected)
         df_subst.set_index(all_selected)

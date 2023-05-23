@@ -44,7 +44,6 @@ def eval_model(args, labeled_trainloader, unlabeled_dataset, test_loader, val_lo
         logger.info('test AUPR(out): {:.2f}'.format(test_aupr_out*100))
 
         for ood in ood_loaders.keys():
-            # 这里是对的
             args.no_progress = 1
             roc_ood, aupr_in_ood, aupr_out_ood = test_ood(args, test_id, ood_loaders[ood], test_model)
             logger.info("{ood}| ROC: {roc:.2f} | AUPR(in): {aupr_in:.2f} | AUPR(out): {aupr_out:.2f}".format(
