@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def main():
     args = set_parser()
-    best_acc, best_acc_val, best_roc = 0, 0, 0, 0, 0
+    best_acc, best_acc_val, best_roc = 0, 0, 0
     if args.local_rank == -1:
         device = torch.device('cuda', args.gpu_id)
         args.world_size = 1
